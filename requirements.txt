@@ -1,9 +1,7 @@
 convertapi==1.7.0
 fastapi==0.104.1
-firebase_admin==6.2.0
 imageio==2.32.0
 moviepy==1.0.3
 python_pptx==0.6.23
 Requests==2.31.0
 uvicorn==0.24.0.post1
-requests
