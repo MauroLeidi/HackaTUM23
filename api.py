@@ -84,7 +84,7 @@ async def upload_pptx(request: UploadPPTXRequest):
         videos = []
         durations = []
 
-        for text in notes[:2]:
+        for text in notes:#[:2]:
             print(avatar_img_url)
             print(text[0])
             id = avatarVideoRequest(avatar_img_url,text[0],speech_motion,gender)
@@ -93,7 +93,7 @@ async def upload_pptx(request: UploadPPTXRequest):
         # Sleep for 5 seconds
         time.sleep(10)    
 
-        for i,_ in enumerate(notes[:2]):
+        for i,_ in enumerate(notes):#notes[:2]):
             id = ids[i]
             video,duration = getAvatarVideo(id)
             videos.append(video)

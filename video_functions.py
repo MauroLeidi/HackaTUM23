@@ -8,6 +8,11 @@ import firebase_admin
 from firebase_admin import credentials, storage
 from moviepy.editor import *
 import uuid
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DID_API_KEY = os.getenv("DID_API_KEY")
 
 
 def uploadToFirebase(filepath):
@@ -19,6 +24,17 @@ def uploadToFirebase(filepath):
 
 # Your existing functions with added docstrings
 def concatenate_videos(video_bytes_list, output_path='concatenated.mp4'):
+    """
+    Concatenates a list of video bytes into a single video file.
+
+    Args:
+        video_bytes_list (list): A list of video bytes.
+        output_path (str, optional): The output path for the concatenated video file. 
+            Defaults to 'concatenated.mp4'.
+
+    Returns:
+        str: The output path of the concatenated video file.
+    """
     filenames = [f"toconcat{i}.mp4" for i in range(len(video_bytes_list))]
     for i,filename in enumerate(filenames):
         with open(filename, "wb") as file:
@@ -30,6 +46,19 @@ def concatenate_videos(video_bytes_list, output_path='concatenated.mp4'):
     return output_path
 
 def read_images_as_bytes(image_paths):
+    """
+    Read a list of image files and return their contents as bytes.
+
+    Args:
+        image_paths (list): A list of file paths to the image files.
+
+    Returns:
+        list: A list of image contents as bytes.
+
+    Raises:
+        FileNotFoundError: If an image file is not found.
+        IOError: If there is an error reading an image file.
+    """
     image_bytes_list = []
 
     for image_path in image_paths:
@@ -39,8 +68,13 @@ def read_images_as_bytes(image_paths):
                 image_bytes = image_file.read()
                 image_bytes_list.append(image_bytes)
 
-        except Exception as e:
+        except FileNotFoundError as e:
+            print(f"Error reading image {image_path}: File not found.")
+            raise e
+
+        except IOError as e:
             print(f"Error reading image {image_path}: {e}")
+            raise e
 
     return image_bytes_list
 
@@ -138,37 +172,54 @@ def get_presentation_video(pptx_file_path, durations_seconds):
     video_path = generate_video(img_paths, durations_seconds)
     return video_path
 
-def avatarVideoRequest(avatar_img_url,text,speech_motion,gender):
+import requests
+
+def avatarVideoRequest(avatar_img_url, text, speech_motion, gender):
+    """
+    Sends a request to generate an avatar video with the given parameters.
+
+    Args:
+        avatar_img_url (str): The URL of the avatar image.
+        text (str): The text to be spoken in the video.
+        speech_motion (str): The style of speech motion for the avatar. Can be "friendly" or "cheerful".
+        gender (str): The gender of the avatar. Can be "male" or "female".
+
+    Returns:
+        str: The ID of the generated video.
+
+    Raises:
+        requests.exceptions.RequestException: If the request fails.
+
+    """
     url = "https://api.d-id.com/talks"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Basic ZnV0YnVkZHkudGVhbUBnbWFpbC5jb20:a7A13FVxml4I6d1GIuBTL",
+        "Authorization": f"Basic {DID_API_KEY}",
     }
     data = {
         "script": {
             "type": "text",
-            "input": text,  # Assuming 'text' is a variable containing your text,
+            "input": text,
             "provider": {
-            "type": "microsoft",
-            "voice_id": "en-US-TonyNeural" if gender == "male" else "en-US-JennyNeural",
-            "voice_config": {
-                "style": speech_motion
+                "type": "microsoft",
+                "voice_id": "en-US-TonyNeural" if gender == "male" else "en-US-JennyNeural",
+                "voice_config": {
+                    "style": speech_motion
+                }
             }
-            
-        }
         },
-        "source_url": avatar_img_url,  # Assuming 'imageUrl' is a variable containing your image URL,
+        "source_url": avatar_img_url,
         "config": {
-    "driver_expressions": {
-      "expressions": [
-        {
-          "start_frame": 0,
-          "expression": "happy" if speech_motion in ["friendly","cheerful"] else "neutral",
-          "intensity": 1
+            "driver_expressions": {
+                "expressions": [
+                    {
+                        "start_frame": 0,
+                        "expression": "happy" if speech_motion in ["friendly", "cheerful"] else "neutral",
+                        "intensity": 1
+                    }
+                ]
+            }
         }
-      ]
-    }}
-        
     }
 
     response = requests.post(url, json=data, headers=headers)
@@ -180,6 +231,7 @@ def avatarVideoRequest(avatar_img_url,text,speech_motion,gender):
     else:
         print(f"Request failed with status code {response.status_code}:")
         print(response.text)
+    
     id = response.json()['id']
     return id
 
@@ -187,7 +239,7 @@ def getAvatarVideo(id):
     url = f"https://api.d-id.com/talks/{id}"
     headers = {
         "Content-Type": "application/json",
-        "Authorization": "Basic ZnV0YnVkZHkudGVhbUBnbWFpbC5jb20:a7A13FVxml4I6d1GIuBTL",
+        "Authorization": f"Basic {DID_API_KEY}",
     }
 
     response = requests.get(url, headers=headers)
