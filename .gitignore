@@ -4,4 +4,7 @@ vectordatabase-95677-firebase-adminsdk-8bg6n-f9507e3032.json
 __pycache__/
 imgs/
 frontend/vectordatabase-95677-firebase-adminsdk-8bg6n-f9507e3032.json
-frontend/firebaseConfig
+frontend/pages/firebaseConfig.js
+frontend/node_modules
+frontend/.next
+frontend/package-lock.json
