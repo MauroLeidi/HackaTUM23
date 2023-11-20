@@ -1,4 +1,4 @@
-# HackaTUM23
+# 2nd Place VoiceCraft: AI-Enhanced Inclusivity - HackaTUM23
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/D3r6sV6Q71U/0.jpg)](https://www.youtube.com/watch?v=D3r6sV6Q71U)
 
